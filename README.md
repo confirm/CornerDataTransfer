@@ -10,7 +10,7 @@ To install the client, run the following command:
 
 
 ```python
-make install 
+make install
 ```
 
 If you don't have `make` installed, you can also run:
