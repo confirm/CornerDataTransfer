@@ -1,6 +1,11 @@
 #!/usr/bin/env python3
+'''
+The Python API client for the Cornèr Bank transfer platform.
+'''
 
 from argparse import ArgumentParser
+from datetime import datetime
+from functools import reduce
 
 from gnupg import GPG
 from requests import Session
@@ -28,7 +33,7 @@ class CornerDataFile:
         :return: String version
         :rtype: str
         '''
-        return self.file['cwid']
+        return self.file['filename']
 
     def __repr__(self):
         '''
@@ -58,6 +63,33 @@ class CornerDataFile:
         :rtype: str
         '''
         return self.file['downloadUri']
+
+    @property
+    def put_date(self):
+        '''
+        The timestamp when the file was put on the server.
+
+        :return: The put date
+        :rtype: datetime.datetime
+        '''
+        return datetime.fromisoformat(
+            self.file['attributes']['FSR_FILE_SYS_MD.START_PUT_DATE'].rstrip('Z')
+        )
+
+    @property
+    def last_read_date(self):
+        '''
+        The timestamp when the file was last read.
+
+        :return: The last read date
+        :rtype: datetime.datetime
+        '''
+        date = self.file['attributes']['FSR_FILE_SYS_MD.LAST_READ_DATE'].rstrip('Z')
+
+        if date:
+            return datetime.fromisoformat(date)
+
+        return None
 
     def download(self, destination, decrypt=True):
         '''
@@ -133,6 +165,37 @@ class CornerDataTransfer:
 
         return files
 
+    def get_unread_files(self, *args, **kwargs):
+        '''
+        Get the unread files.
+
+        :param list args: The arguments
+        :param dict kwargs: The keyword arguments
+
+        :return: The unread files
+        :rtype: list
+        '''
+        return {
+            key: value
+            for key, value in self.get_files(*args, **kwargs).items()
+            if not value.last_read_date
+        }
+
+    def get_latest_file(self, *args, **kwargs):
+        '''
+        Get the latest file.
+
+        :param list args: The arguments
+        :param dict kwargs: The keyword arguments
+
+        :return: The file
+        :rtype: CornerDataFile
+        '''
+        return reduce(
+            lambda x, y: y if not x or y.put_date >= x.put_date else x,
+            self.get_files(*args, **kwargs).values(),
+        )
+
 
 if __name__ == '__main__':
 
@@ -147,7 +210,9 @@ if __name__ == '__main__':
     parser.add_argument('-p', '--password', required=True, help='the password')
     parser.add_argument('--url', default=DEFAULT_URL, help='the base URL')
 
+    subparsers.add_parser('latest')
     subparsers.add_parser('list')
+    subparsers.add_parser('list-unread')
 
     download = subparsers.add_parser('download')
     download.add_argument('-n', '--nodecrypt', action='store_false', help='don\'t decrypt the file')
@@ -177,6 +242,13 @@ if __name__ == '__main__':
         except KeyError as ex:
             raise FileNotFoundError(f'Invalid filename "{args.filename}"') from ex
 
+    elif command == 'latest':
+        print(transfer.get_latest_file())
+
     elif command == 'list':
         for file in transfer.get_files().values():
+            print(file.filename)
+
+    elif command == 'list-unread':
+        for file in transfer.get_unread_files().values():
             print(file.filename)
