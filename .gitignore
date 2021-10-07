@@ -1,1 +1,4 @@
 /.venv/
+/.isort.cfg
+/.pylintrc
+/tox.ini

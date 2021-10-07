@@ -108,7 +108,7 @@ class CornerDataFile:
         else:
             data = response.text
 
-        with open(file=destination, mode='w') as file:
+        with open(file=destination, mode='w', encoding='utf-8') as file:
             file.write(data)
 
 
@@ -131,6 +131,11 @@ class CornerDataTransfer:
     def get_url(self, path):
         '''
         Get the full URL for a path.
+
+        :param str path: The path
+
+        :return: The absolute URL
+        :rtype: str
         '''
         return f'{self.url.rstrip("/")}/{path}'
 
