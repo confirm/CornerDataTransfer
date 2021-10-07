@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 '''
-The Python API client for the Cornèr Bank transfer platform.
+The Python API client for the Cornèr Bank data transfer platform.
 '''
 
-from argparse import ArgumentParser
+from argparse import ArgumentParser, HelpFormatter
 from datetime import datetime
 from functools import reduce
 
@@ -208,18 +208,22 @@ if __name__ == '__main__':
     # Setup argument parser.
     #
 
-    parser     = ArgumentParser('Cornèr Bank data transfer client')
+    parser = ArgumentParser(
+        description='Cornèr Bank data transfer client.',
+        formatter_class=lambda prog: HelpFormatter(prog, max_help_position=80)
+    )
+
     subparsers = parser.add_subparsers(dest='command', required=True)
 
     parser.add_argument('-u', '--username', required=True, help='the username')
     parser.add_argument('-p', '--password', required=True, help='the password')
     parser.add_argument('--url', default=DEFAULT_URL, help='the base URL')
 
-    subparsers.add_parser('latest')
-    subparsers.add_parser('list')
-    subparsers.add_parser('list-unread')
+    subparsers.add_parser('latest', help='get the latest / newest file')
+    subparsers.add_parser('list', help='list all files')
+    subparsers.add_parser('list-unread', help='list unread files')
 
-    download = subparsers.add_parser('download')
+    download = subparsers.add_parser('download', help='download (and decrypt) a file')
     download.add_argument('-n', '--nodecrypt', action='store_false', help='don\'t decrypt the file')
     download.add_argument('filename', help='the filename')
     download.add_argument('destination', help='the destination path')
