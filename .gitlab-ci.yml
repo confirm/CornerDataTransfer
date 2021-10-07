@@ -1,0 +1,15 @@
+---
+Test Package:
+  stage: test
+  script:
+    - make develop
+    - make test-isort
+    - make test-pycodestyle
+    - make test-pylint
+  interruptible: true
+  except:
+    variables:
+      - $SKIP_TEST
+  tags:
+    - dev
+    - docker
