@@ -25,7 +25,7 @@ Usage
 The usage is quite simple:
 
 ```
-usage: corner-data-transfer.py [-h] -u USERNAME -p PASSWORD [--url URL] {latest,list,list-unread,download} ...
+usage: corner_data_transfer.py [-h] -u USERNAME -p PASSWORD [--url URL] {latest,list,list-unread,download} ...
 
 Cornèr Bank data transfer client.
 
@@ -46,13 +46,13 @@ optional arguments:
 For example, if you want to list the files you can run:
 
 ```bash
-corner-data-transfer.py -u ${USERNAME} -p ${PASSWORD} list
+corner_data_transfer.py -u ${USERNAME} -p ${PASSWORD} list
 ```
 
 To download a file you can run:
 
 ```bash
-corner-data-transfer.py -u ${USERNAME} -p ${PASSWORD} download testfile.txt.pgp  /tmp/testfile.txt
+corner_data_transfer.py -u ${USERNAME} -p ${PASSWORD} download testfile.txt.pgp  /tmp/testfile.txt
 ```
 
 The file will automatically be decrypted by GPG. If you don't want that, you can use the `-n` CLI flag after the `download` command.

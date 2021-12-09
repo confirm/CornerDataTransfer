@@ -91,6 +91,27 @@ class CornerDataFile:
 
         return None
 
+    def content(self, decrypt=True):
+        '''
+        The file content.
+
+        :param bool decrypt: Decrypt the retreived file
+
+        :return: The file content
+        :rtype: str
+        '''
+        response = self.session.get(url=self.url)
+        response.raise_for_status()
+
+        if decrypt:
+            decrypted_content = GPG().decrypt(response.content)
+            assert decrypted_content.ok, decrypted_content.status
+            content = str(decrypted_content)
+        else:
+            content = response.text
+
+        return content
+
     def download(self, destination, decrypt=True):
         '''
         Download the file.
@@ -98,18 +119,9 @@ class CornerDataFile:
         :param str destination: The destination path
         :param bool decrypt: Decrypt the retreived file
         '''
-        response = self.session.get(url=self.url)
-        response.raise_for_status()
-
-        if decrypt:
-            decrypted_data = GPG().decrypt(response.content)
-            assert decrypted_data.ok, decrypted_data.status
-            data = str(decrypted_data)
-        else:
-            data = response.text
-
+        content = self.content(decrypt=decrypt)
         with open(file=destination, mode='w', encoding='utf-8') as file:
-            file.write(data)
+            file.write(content)
 
 
 class CornerDataTransfer:
