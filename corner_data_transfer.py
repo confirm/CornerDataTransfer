@@ -186,8 +186,8 @@ class CornerDataTransfer:
         '''
         Get the unread files.
 
-        :param list args: The arguments
-        :param dict kwargs: The keyword arguments
+        :param list \\*args: The arguments
+        :param dict \\**kwargs: The keyword arguments
 
         :return: The unread files
         :rtype: list
@@ -202,8 +202,8 @@ class CornerDataTransfer:
         '''
         Get the latest file.
 
-        :param list args: The arguments
-        :param dict kwargs: The keyword arguments
+        :param list \\*args: The arguments
+        :param dict \\**kwargs: The keyword arguments
 
         :return: The file
         :rtype: CornerDataFile
@@ -240,36 +240,41 @@ if __name__ == '__main__':
     download.add_argument('filename', help='the filename')
     download.add_argument('destination', help='the destination path')
 
-    args    = parser.parse_args()
-    command = args.command
+    cli_args    = parser.parse_args()
+    cli_command = cli_args.command
 
     #
     # Create CornerDataTransfer instance and login.
     #
 
-    transfer = CornerDataTransfer(username=args.username, password=args.password, url=args.url)
+    transfer = CornerDataTransfer(
+        username=cli_args.username,
+        password=cli_args.password,
+        url=cli_args.url
+    )
+
     transfer.login()
 
     #
     # Execute the desired command.
     #
 
-    if command == 'download':
+    if cli_command == 'download':
         try:
-            transfer.get_files()[args.filename].download(
-                destination=args.destination,
-                decrypt=args.nodecrypt
+            transfer.get_files()[cli_args.filename].download(
+                destination=cli_args.destination,
+                decrypt=cli_args.nodecrypt
             )
         except KeyError as ex:
-            raise FileNotFoundError(f'Invalid filename "{args.filename}"') from ex
+            raise FileNotFoundError(f'Invalid filename "{cli_args.filename}"') from ex
 
-    elif command == 'latest':
+    elif cli_command == 'latest':
         print(transfer.get_latest_file())
 
-    elif command == 'list':
-        for file in transfer.get_files().values():
-            print(file.filename)
+    elif cli_command == 'list':
+        for corner_file in transfer.get_files().values():
+            print(corner_file.filename)
 
-    elif command == 'list-unread':
-        for file in transfer.get_unread_files().values():
-            print(file.filename)
+    elif cli_command == 'list-unread':
+        for corner_file in transfer.get_unread_files().values():
+            print(corner_file.filename)
