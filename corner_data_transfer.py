@@ -98,7 +98,7 @@ class CornerDataFile:
         :param bool decrypt: Decrypt the retreived file
 
         :return: The file content
-        :rtype: str
+        :rtype: bytes
         '''
         response = self.session.get(url=self.url)
         response.raise_for_status()
@@ -106,11 +106,9 @@ class CornerDataFile:
         if decrypt:
             decrypted_content = GPG().decrypt(response.content)
             assert decrypted_content.ok, decrypted_content.status
-            content = str(decrypted_content)
-        else:
-            content = response.text
+            return decrypted_content.data
 
-        return content
+        return response.content
 
     def download(self, destination, decrypt=True):
         '''
@@ -120,7 +118,7 @@ class CornerDataFile:
         :param bool decrypt: Decrypt the retreived file
         '''
         content = self.content(decrypt=decrypt)
-        with open(file=destination, mode='w', encoding='utf-8') as file:
+        with open(file=destination, mode='wb') as file:
             file.write(content)
 
 
